@@ -7,8 +7,8 @@ body{
 
 #board{
     background-color: papayawhip;
-    /* border-radius: 20px; */
-    border-top: solid 4px mediumaquamarine;
+    border-radius: 20px;
+    border-top: solid 4px #66cdaa;
     border-right: solid 4px mediumaquamarine;
     border-left: solid 4px mediumaquamarine;
 }

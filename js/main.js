@@ -55,6 +55,9 @@ let blockCount = 0;  // for how many blocks remain
 let blockX = 15;
 let blockY = 45;
 
+let score = 0;
+let gameOver = false;
+
 
 window.onload = function (){
     board;
@@ -75,6 +78,9 @@ window.onload = function (){
 
 function update(){
     requestAnimationFrame(update);
+    if (gameOver){
+        return;
+    }
     context.clearRect(0,0, board.width, board.height);
 
     //player
@@ -82,7 +88,7 @@ function update(){
     context.fillRect(player.x, player.y, player.width, player.height);
 
     //ball
-    context.fillStyle = "black";
+    context.fillStyle = "#7282C6 ";  
     ball.x += ball.velocityX;
     ball.y += ball.velocityY;
     context.fillRect(ball.x, ball.y, ball.width, ball.height);
@@ -98,6 +104,10 @@ function update(){
     }
     else if (ball.y + ball.height >= heightBoard){
         //game over. ball touch bottom of canvas
+        context.font = "20px fantasyf";
+        context.fillText("Game Over: Press 'Space' to Restart", 100, 300); 
+        gameOver = true;
+
     }
 
     //bounce the ball off player paddle (detectcollision)
@@ -111,7 +121,7 @@ function update(){
 
     //blocks
 
-    context.fillStyle = "mediumaquamarine";
+    context.fillStyle = "#99B0A7";
     for (let i=0; i < blockArray.length; i++){
         let block = blockArray[i];
         if(!block.break){
@@ -119,16 +129,29 @@ function update(){
                 block.break = true;
                 ball.velocityY *= -1;
                 blockCount -= 1;
+                score += 100;
             }
             else if (leftCollision(ball, block) || rightCollision(ball, block)){
                 block.break = true;
                 ball.velocityX *= -1;
                 blockCount -= 1;
+                score += 100;
             }
             context.fillRect(block.x, block.y, block.width, block.height);
         }
     }
+    //next level
+    if(blockCount == 0){
+        score += 100*blockRows*blockColumns;  //bonus points
+        blockRows = Math.min(blockRows + 1, blockMaxRows);
+        createBlocks();
 
+    }
+
+    //score 
+    context.font = "30px sans-serif";
+    context.fillText(score, 10, 25);
+    context.fontStyle = "blue";  
 }
 
 function outOfBounds(xPosition){
@@ -136,6 +159,11 @@ function outOfBounds(xPosition){
 }
 
 function movePlayer(event){
+    if(gameOver){
+        if (event.code === "Space"){
+            resetGame();
+        }
+    }
     if(event.code == "ArrowLeft"){
         // player.x -= player.velocity;
         let newPosition = player.x - player.velocityX;
@@ -190,4 +218,27 @@ function createBlocks(){
         }
     }
     blockCount = blockArray.length;
+}
+
+function resetGame(){
+    gameOver = false;
+    player = {
+        x : widthBoard/2 - playerWidth/2,
+        y: heightBoard - playerHeight - 15,
+        width : playerWidth,
+        height: playerHeight,
+        velocityX: playerVelocityX
+    }
+    ball = {
+        x: widthBoard/2,
+        y: heightBoard/2,
+        width: ballWidth,
+        height: ballHeight,
+        velocityX: ballVelocityX,
+        velocityY: ballVelocityY
+    }
+    blockArray = [];
+    blockRows = 3;
+    score = 0;
+    createBlocks();
 }
